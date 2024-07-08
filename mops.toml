@@ -9,3 +9,6 @@ license = "MIT"
 [dependencies]
 testing = "https://github.com/aviate-labs/testing.mo#v0.1.3"
 base = "0.11.1"
+
+[toolchain]
+moc = "0.11.1"
