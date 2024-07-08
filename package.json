@@ -1,0 +1,22 @@
+{
+  "name": "icrc2-batch",
+  "version": "1.0.0",
+  "description": "Batch functionality for ICRC-2 enabled token ledgers ",
+  "main": "index.js",
+  "scripts": {
+    "test": "mops test --mode=interpreter"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MemeFighterCo/icrc2-batch.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/MemeFighterCo/icrc2-batch/issues"
+  },
+  "homepage": "https://github.com/MemeFighterCo/icrc2-batch#readme",
+  "devDependencies": {
+    "ic-mops": "^0.44.1"
+  }
+}
