@@ -11,6 +11,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Install dfx
+        uses: dfinity/setup-dfx@main
+        with:
+          dfx-version: 0.20.0
+
       - uses: actions/checkout@v4
       - uses: ZenVoich/setup-mops@v1
 
