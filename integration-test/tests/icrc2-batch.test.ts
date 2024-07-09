@@ -72,9 +72,6 @@ describe('Test suite name', () => {
       { allowance: 100n, expires_at: [] },
       { allowance: 100n, expires_at: [] },
     ]);
-    //const response = await actor.do_something_cool();
-
-    //expect(response).toEqual('cool');
   });
 
   it("can perform batch approvals", async () => {
@@ -94,5 +91,4 @@ describe('Test suite name', () => {
       { Ok: 100n },
     ]);
   });
-
 });

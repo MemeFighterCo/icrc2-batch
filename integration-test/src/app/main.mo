@@ -1,5 +1,3 @@
-import { print } "mo:base/Debug";
-import Error "mo:base/Error";
 import Principal "mo:base/Principal";
 import ICRC2Batch "../../../src";
 import ICRC2Interface "../../../src/ICRC2Interface";
