@@ -4,7 +4,10 @@
   "description": "Batch functionality for ICRC-2 enabled token ledgers ",
   "main": "index.js",
   "scripts": {
-    "test": "mops test --mode=interpreter"
+    "install-deps": "npm i && npm i --prefix integration-test", 
+    "unit-tests": "mops test --mode=interpreter",
+    "integration-tests": "npm run ci --prefix integration-test"
+
   },
   "repository": {
     "type": "git",

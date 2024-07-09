@@ -6,14 +6,13 @@
     },
     "app": {
       "main": "src/app/main.mo",
-      "type": "motoko",
-      "dependencies": ["mock-icrc2-canister"]
+      "type": "motoko"
     }
   },
   "dfx": "0.20.0",
   "defaults": {
     "build": {
-      "packtool": "mops sources"
+      "packtool": "npx mops sources"
     }
   }
 }

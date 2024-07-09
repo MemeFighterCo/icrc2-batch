@@ -1,7 +1,9 @@
 import ICRC2Interface "../../../src/ICRC2Interface";
+import { print } "mo:base/Debug";
 
 actor MockICRC2Actor {
-  public query func icrc2_allowance(_: ICRC2Interface.AllowanceArgs) : async ICRC2Interface.Allowance {
+  public query func icrc2_allowance(args: ICRC2Interface.AllowanceArgs) : async ICRC2Interface.Allowance {
+    print("allowanceArgs: " # debug_show(args));
     return { allowance = 100; expires_at = null };
   };
 

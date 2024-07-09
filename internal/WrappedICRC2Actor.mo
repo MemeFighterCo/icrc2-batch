@@ -36,6 +36,7 @@ module {
     let allowanceResults = Buffer.Buffer<ICRC2Interface.Allowance>(allowances.size());
 
     for (allowanceArgs in allowances.vals()) {
+      print("allowanceArgs: " # debug_show(allowanceArgs));
       allowanceFutures.add(allowanceFunction(icrc2Actor, allowanceArgs));
       if (allowanceFutures.size() >= batchSize) {
         for (allowanceFuture in allowanceFutures.vals()) {
@@ -43,6 +44,11 @@ module {
         };
         allowanceFutures.clear();
       };
+    };
+
+    // Add any remaining results
+    for (allowanceFuture in allowanceFutures.vals()) {
+      allowanceResults.add(await* allowanceFuture);
     };
 
     Buffer.toArray(allowanceResults);
@@ -72,6 +78,11 @@ module {
       };
     };
 
+    // Add any remaining results
+    for (approvalFuture in approvalFutures.vals()) {
+      approvalResults.add(await* approvalFuture);
+    };
+
     Buffer.toArray(approvalResults);
   };
 
@@ -98,6 +109,11 @@ module {
         };
         transferFutures.clear();
       };
+    };
+
+    // Add any remaining results
+    for (transferFuture in transferFutures.vals()) {
+      transferResults.add(await* transferFuture);
     };
 
     Buffer.toArray(transferResults);

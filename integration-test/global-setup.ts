@@ -13,7 +13,10 @@ declare module 'vitest' {
 */
 
 export async function setup({ provide }: GlobalSetupContext): Promise<void> {
-  pic = await PocketIcServer.start();
+  pic = await PocketIcServer.start({
+    showCanisterLogs: true,
+    //showRuntimeLogs: true,
+  });
   const url = pic.getUrl();
 
   provide('PIC_URL', url);

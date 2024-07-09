@@ -3,12 +3,19 @@
   "version": "1.0.0",
   "description": "Integration tests for icrc2-batch",
   "scripts": {
-    "test": "vitest"
+    "ci": "npm run setup && npm run test",
+    "setup": "npm i && npm run fresh-dfx && npm run declarations",
+    "fresh-dfx": "dfx stop && dfx start --background --clean",
+    "declarations": "dfx generate",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "devDependencies": {
+    "@dfinity/candid": "^1.4.0",
     "@dfinity/principal": "^1.4.0",
     "@hadronous/pic": "^0.8.1",
     "@types/node": "^20.14.10",
+    "ic-mops": "^0.44.1",
     "ts-node": "^10.9.2",
     "vitest": "^2.0.1"
   }

@@ -3,10 +3,11 @@ import { describe, beforeEach, afterEach, it, expect, inject } from 'vitest';
 import { resolve } from 'path';
 import { idlFactory as MockICRC2CanisterIDL } from "../src/declarations/mock-icrc2-canister/mock-icrc2-canister.did.js";
 import { _SERVICE as MockICRC2CanisterService } from '../src/declarations/mock-icrc2-canister/mock-icrc2-canister.did.js';
-import { idlFactory as AppIDL } from '../src/declarations/app/app.did.js';
+import { idlFactory as AppIDL, init } from '../src/declarations/app/app.did.js';
 import { _SERVICE as AppService } from '../src/declarations/app/app.did.js';
 import { Actor, PocketIc } from '@hadronous/pic';
 import { Principal } from '@dfinity/principal';
+import { IDL } from '@dfinity/candid';
 
 
 // Define the path to your canister's WASM file
@@ -47,6 +48,7 @@ describe('Test suite name', () => {
     const appFixture = await pic.setupCanister<AppService>({
       idlFactory: AppIDL,
       wasm: APP_WASM_PATH,
+      arg: IDL.encode(init({ IDL }), [mockICRC2CanisterId]),
     });
 
     // Save the actor and canister ID for use in tests
@@ -63,20 +65,34 @@ describe('Test suite name', () => {
     await pic.tearDown();
   });
 
-  // The `it` function is used to define individual tests
-  it("something", () => {
-    expect(1).toEqual(1);
-  }) ;
-
-  it('should do something cool', async () => {
+  it('can retrieve batch allowances', async () => {
     const response = await appActor.getAllICRC2Allowances();
-    console.log("response: ", JSON.stringify(response, (_, v) => {
-      if (v instanceof Principal) return v.toText();
-      if (typeof v === "bigint") return v.toString();
-      return v;
-    }));
+    expect(response).toEqual([
+      { allowance: 100n, expires_at: [] },
+      { allowance: 100n, expires_at: [] },
+      { allowance: 100n, expires_at: [] },
+    ]);
     //const response = await actor.do_something_cool();
 
     //expect(response).toEqual('cool');
   });
+
+  it("can perform batch approvals", async () => {
+    const response = await appActor.doICRC2Approvals();
+    expect(response).toEqual([
+      { Ok: 100n },
+      { Ok: 100n },
+      { Ok: 100n },
+    ]);
+  });
+
+  it("can perform batch transfer froms", async () => {
+    const response = await appActor.doICRC2TransferFroms();
+    expect(response).toEqual([
+      { Ok: 100n },
+      { Ok: 100n },
+      { Ok: 100n },
+    ]);
+  });
+
 });

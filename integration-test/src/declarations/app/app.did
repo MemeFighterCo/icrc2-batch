@@ -1,8 +1,49 @@
+type TransferFromError = 
+ variant {
+   BadBurn: record {min_burn_amount: nat;};
+   BadFee: record {expected_fee: nat;};
+   CreatedInFuture: record {ledger_time: nat64;};
+   Duplicate: record {duplicate_of: nat;};
+   GenericError: record {
+                   error_code: nat;
+                   message: text;
+                 };
+   InsufficientAllowance: record {allowance: nat;};
+   InsufficientFunds: record {balance: nat;};
+   TemporarilyUnavailable;
+   TooOld;
+ };
+type ApproveError = 
+ variant {
+   AllowanceChanged: record {current_allowance: nat;};
+   BadFee: record {expected_fee: nat;};
+   CreatedInFuture: record {ledger_time: nat64;};
+   Duplicate: record {duplicate_of: nat;};
+   Expired: record {ledger_time: nat64;};
+   GenericError: record {
+                   error_code: nat;
+                   message: text;
+                 };
+   InsufficientFunds: record {balance: nat;};
+   TemporarilyUnavailable;
+   TooOld;
+ };
+type App = 
+ service {
+   doICRC2Approvals: () -> (vec variant {
+                                  Err: ApproveError;
+                                  Ok: nat;
+                                });
+   doICRC2TransferFroms: () ->
+    (vec variant {
+           Err: TransferFromError;
+           Ok: nat;
+         });
+   getAllICRC2Allowances: () -> (vec Allowance);
+ };
 type Allowance = 
  record {
    allowance: nat;
    expires_at: opt nat64;
  };
-service : {
-  getAllICRC2Allowances: () -> (vec Allowance);
-}
+service : (principal) -> App
