@@ -2,7 +2,7 @@
 name = "icrc2-batch"
 version = "1.0.0"
 description = "Batch functionality for ICRC-2 enabled token ledgers"
-repository = "https://github.com/MemeFighterCo/icrc2-batch.git"
+repository = "https://github.com/MemeFighterCo/icrc2-batch"
 keywords = [ "ICRC", "ICRC-2", "transaction", "token", "ledger" ]
 license = "MIT"
 
