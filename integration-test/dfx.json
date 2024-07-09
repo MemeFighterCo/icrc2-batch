@@ -1,0 +1,19 @@
+{
+  "canisters": {
+    "mock-icrc2-canister": {
+      "main": "src/mock-icrc2-canister/main.mo",
+      "type": "motoko"
+    },
+    "app": {
+      "main": "src/app/main.mo",
+      "type": "motoko",
+      "dependencies": ["mock-icrc2-canister"]
+    }
+  },
+  "dfx": "0.20.0",
+  "defaults": {
+    "build": {
+      "packtool": "mops sources"
+    }
+  }
+}

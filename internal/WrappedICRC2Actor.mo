@@ -1,4 +1,5 @@
 import Principal "mo:base/Principal";
+import { BATCH_SIZE_LIMIT } "Constants";
 import ICRC2Interface "../src/ICRC2Interface";
 import Buffer "mo:base/Buffer";
 import { print } "mo:base/Debug";
@@ -23,10 +24,14 @@ module {
   /// Batch get allowances provided a list of allowance arguments
   public func wrapped_icrc2_allowance_batch(
     icrc2Actor : ICRC2Interface.ICRC2Actor,
-    batchSize : Nat,
+    passedBatchSize: Nat,
     allowances: [ICRC2Interface.AllowanceArgs],
     allowanceFunction : (ICRC2Interface.ICRC2Actor, ICRC2Interface.AllowanceArgs) -> async* ICRC2Interface.Allowance
   ) : async* [ICRC2Interface.Allowance] {
+    let batchSize = if (passedBatchSize > BATCH_SIZE_LIMIT) {
+      print("You passed in a batch size of " # debug_show(passedBatchSize) # ", but the current max batch size is " # debug_show(BATCH_SIZE_LIMIT) # ". Defaulting to a batch size of " # debug_show(BATCH_SIZE_LIMIT) # ".");
+      BATCH_SIZE_LIMIT;
+    } else { passedBatchSize };
     let allowanceFutures = Buffer.Buffer<async* ICRC2Interface.Allowance>(batchSize);
     let allowanceResults = Buffer.Buffer<ICRC2Interface.Allowance>(allowances.size());
 
@@ -46,10 +51,14 @@ module {
   /// Batch approval provided a list of approval arguments
   public func wrapped_icrc2_approve_batch(
     icrc2Actor : ICRC2Interface.ICRC2Actor,
-    batchSize : Nat,
+    passedBatchSize: Nat,
     approvals: [ICRC2Interface.ApproveArgs],
     approveFunction : (ICRC2Interface.ICRC2Actor, ICRC2Interface.ApproveArgs) -> async* { #Ok : Nat; #Err : ICRC2Interface.ApproveError }
   ) : async* [{ #Ok : Nat; #Err : ICRC2Interface.ApproveError }] {
+    let batchSize = if (passedBatchSize > BATCH_SIZE_LIMIT) {
+      print("You passed in a batch size of " # debug_show(passedBatchSize) # ", but the current max batch size is " # debug_show(BATCH_SIZE_LIMIT) # ". Defaulting to a batch size of " # debug_show(BATCH_SIZE_LIMIT) # ".");
+      BATCH_SIZE_LIMIT;
+    } else { passedBatchSize };
     let approvalFutures = Buffer.Buffer<async* { #Ok : Nat; #Err : ICRC2Interface.ApproveError }>(batchSize);
     let approvalResults = Buffer.Buffer<{ #Ok : Nat; #Err : ICRC2Interface.ApproveError }>(approvals.size());
 
@@ -70,10 +79,14 @@ module {
   /// Batch transfer_from provided a list of transfer_from arguments
   public func wrapped_icrc2_transfer_from_batch(
     icrc2Actor : ICRC2Interface.ICRC2Actor,
-    batchSize : Nat,
+    passedBatchSize : Nat,
     transfers: [ICRC2Interface.TransferFromArgs],
     transferFunction : (ICRC2Interface.ICRC2Actor, ICRC2Interface.TransferFromArgs) -> async* { #Ok : Nat; #Err : ICRC2Interface.TransferFromError }
   ) : async* [{ #Ok : Nat; #Err : ICRC2Interface.TransferFromError }] {
+    let batchSize = if (passedBatchSize > BATCH_SIZE_LIMIT) {
+      print("You passed in a batch size of " # debug_show(passedBatchSize) # ", but the current max batch size is " # debug_show(BATCH_SIZE_LIMIT) # ". Defaulting to a batch size of " # debug_show(BATCH_SIZE_LIMIT) # ".");
+      BATCH_SIZE_LIMIT;
+    } else { passedBatchSize };
     let transferFutures = Buffer.Buffer<async* { #Ok : Nat; #Err : ICRC2Interface.TransferFromError }>(batchSize);
     let transferResults = Buffer.Buffer<{ #Ok : Nat; #Err : ICRC2Interface.TransferFromError }>(transfers.size());
 

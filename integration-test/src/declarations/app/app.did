@@ -1,0 +1,8 @@
+type Allowance = 
+ record {
+   allowance: nat;
+   expires_at: opt nat64;
+ };
+service : {
+  getAllICRC2Allowances: () -> (vec Allowance);
+}
