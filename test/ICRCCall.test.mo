@@ -2,7 +2,7 @@ import Option "mo:base/Option";
 import { it; its; itsp; describe; Suite } "mo:testing/SuiteState";
 import { principalFromText } = "TestUtils";
 import ICRC2Interface "../src/ICRC2Interface";
-import WrappedIcrc2Actor "../internal/WrappedICRC2Actor";
+import ICRCCall "../internal/ICRCCall";
 
 let customer1 = principalFromText("customer1");
 let customer2 = principalFromText("customer2");
@@ -33,7 +33,7 @@ await* s.run([
             };
           };
 
-          let result = await* WrappedIcrc2Actor.icrc2_allowance(
+          let result = await* ICRCCall.icrc2_allowance(
             icrc2Actor,
             {
               account = { owner = customer1; subaccount = null };
@@ -78,7 +78,7 @@ await* s.run([
             };
           };
 
-          let result = await* WrappedIcrc2Actor.icrc2_approve(
+          let result = await* ICRCCall.icrc2_approve(
             icrc2Actor,
             {
               fee = ?10;
@@ -129,7 +129,7 @@ await* s.run([
             };
           };
 
-          let result = await* WrappedIcrc2Actor.icrc2_transfer_from(
+          let result = await* ICRCCall.icrc2_transfer_from(
             icrc2Actor,
             {
               to = { owner = customer1; subaccount = null };
@@ -161,9 +161,21 @@ await* s.run([
           var areFirstCallArgsCorrect = false;
           var areSecondCallArgsCorrect = false;
           let icrc2Actor : ICRC2Interface.ICRC2Actor = actor {
+            var i = 0;
             public shared func icrc2_allowance({ account; spender }: ICRC2Interface.AllowanceArgs) : async ICRC2Interface.Allowance {
               // This should never get called
-              return { allowance = 50; expires_at = null };
+              // each time this is called, increments i
+              i += 1;
+              if (i == 1) {
+                areFirstCallArgsCorrect := 
+                  account.owner == customer1 and Option.isNull(account.subaccount) and
+                  spender.owner == customer2 and Option.isNull(spender.subaccount);
+              } else if (i == 2) {
+                areSecondCallArgsCorrect := 
+                  account.owner == customer2 and Option.isNull(account.subaccount) and
+                  spender.owner == customer1 and Option.isNull(spender.subaccount);
+              };
+              { allowance = 100 * i; expires_at = null };
             };
             public shared func icrc2_approve(args: ICRC2Interface.ApproveArgs) : async { #Ok : Nat; #Err : ICRC2Interface.ApproveError } {
               return #Ok(0);
@@ -173,23 +185,7 @@ await* s.run([
             };
           };
 
-          var i = 0;
-          func allowanceFunction(icrc2Actor: ICRC2Interface.ICRC2Actor, args: ICRC2Interface.AllowanceArgs) : async* ICRC2Interface.Allowance {
-            // each time this is called, increments i
-            i += 1;
-            if (i == 1) {
-              areFirstCallArgsCorrect := 
-                args.account.owner == customer1 and Option.isNull(args.account.subaccount) and
-                args.spender.owner == customer2 and Option.isNull(args.spender.subaccount);
-            } else if (i == 2) {
-              areSecondCallArgsCorrect := 
-                args.account.owner == customer2 and Option.isNull(args.account.subaccount) and
-                args.spender.owner == customer1 and Option.isNull(args.spender.subaccount);
-            };
-            { allowance = 100 * i; expires_at = null };
-          };
-
-          let allowances = await* WrappedIcrc2Actor.wrapped_icrc2_allowance_batch(
+          let allowances = await* ICRCCall.wrapped_icrc2_allowance_batch(
             icrc2Actor,
             2,
             [
@@ -202,7 +198,7 @@ await* s.run([
                 spender = { owner = customer1; subaccount = null };
               }
             ],
-            allowanceFunction
+            //allowanceFunction
           );
 
           if (allowances != [{ allowance = 100; expires_at = null }, { allowance = 200; expires_at = null }]) {
@@ -224,47 +220,42 @@ await* s.run([
           var areFirstCallArgsCorrect = false;
           var areSecondCallArgsCorrect = false;
           let icrc2Actor : ICRC2Interface.ICRC2Actor = actor {
+            var i = 0;
             public shared func icrc2_allowance({ account; spender }: ICRC2Interface.AllowanceArgs) : async ICRC2Interface.Allowance {
               return { allowance = 100; expires_at = null };
             };
             public shared func icrc2_approve(args: ICRC2Interface.ApproveArgs) : async { #Ok : Nat; #Err : ICRC2Interface.ApproveError } {
-              // This should never get called
-              return #Ok(0);
+              // each time this is called, increments i
+              i += 1;
+              if (i == 1) {
+                areFirstCallArgsCorrect := 
+                  args.fee == ?10 and
+                  args.memo == null and
+                  args.from_subaccount == null and
+                  args.amount == 100 and
+                  args.expected_allowance == ?500 and
+                  args.expires_at == ?1_000_000 and
+                  args.spender.owner == customer2 and Option.isNull(args.spender.subaccount);
+                return #Ok(1);
+              } else if (i == 2) {
+                areSecondCallArgsCorrect := 
+                  args.fee == ?20 and
+                  args.memo == null and
+                  args.from_subaccount == null and
+                  args.amount == 200 and
+                  args.expected_allowance == ?600 and
+                  args.expires_at == ?2_000_000 and
+                  args.spender.owner == customer1 and Option.isNull(args.spender.subaccount);
+                return #Err(#TemporarilyUnavailable);
+              };
+              #Ok(0);
             };
             public shared func icrc2_transfer_from(args: ICRC2Interface.TransferFromArgs) : async { #Ok : Nat; #Err : ICRC2Interface.TransferFromError } {
               return #Ok(0);
             };
           };
 
-          var i = 0;
-          func approveFunction(icrc2Actor: ICRC2Interface.ICRC2Actor, args: ICRC2Interface.ApproveArgs) : async* { #Ok : Nat; #Err : ICRC2Interface.ApproveError } {
-            // each time this is called, increments i
-            i += 1;
-            if (i == 1) {
-              areFirstCallArgsCorrect := 
-                args.fee == ?10 and
-                args.memo == null and
-                args.from_subaccount == null and
-                args.amount == 100 and
-                args.expected_allowance == ?500 and
-                args.expires_at == ?1_000_000 and
-                args.spender.owner == customer2 and Option.isNull(args.spender.subaccount);
-              return #Ok(1);
-            } else if (i == 2) {
-              areSecondCallArgsCorrect := 
-                args.fee == ?20 and
-                args.memo == null and
-                args.from_subaccount == null and
-                args.amount == 200 and
-                args.expected_allowance == ?600 and
-                args.expires_at == ?2_000_000 and
-                args.spender.owner == customer1 and Option.isNull(args.spender.subaccount);
-              return #Err(#TemporarilyUnavailable);
-            };
-            #Ok(0);
-          };
-
-          let approvals = await* WrappedIcrc2Actor.wrapped_icrc2_approve_batch(
+          let approvals = await* ICRCCall.wrapped_icrc2_approve_batch(
             icrc2Actor,
             2,
             [
@@ -289,7 +280,7 @@ await* s.run([
                 spender = { owner = customer1; subaccount = null };
               }
             ],
-            approveFunction
+            //approveFunction
           );
 
           if (approvals != [#Ok(1), #Err(#TemporarilyUnavailable)]) {
@@ -311,6 +302,7 @@ await* s.run([
           var areFirstCallArgsCorrect = false;
           var areSecondCallArgsCorrect = false;
           let icrc2Actor : ICRC2Interface.ICRC2Actor = actor {
+            var i = 0;
             public shared func icrc2_allowance({ account; spender }: ICRC2Interface.AllowanceArgs) : async ICRC2Interface.Allowance {
               return { allowance = 100; expires_at = null };
             };
@@ -318,40 +310,34 @@ await* s.run([
               return #Ok(0);
             };
             public shared func icrc2_transfer_from(args: ICRC2Interface.TransferFromArgs) : async { #Ok : Nat; #Err : ICRC2Interface.TransferFromError } {
-              // This should never get called
-              return #Ok(0);
+              // each time this is called, increments i
+              i += 1;
+              if (i == 1) {
+                areFirstCallArgsCorrect := 
+                  args.to.owner == customer1 and Option.isNull(args.to.subaccount) and
+                  args.fee == ?10 and
+                  args.spender_subaccount == null and
+                  args.from.owner == customer2 and Option.isNull(args.from.subaccount) and
+                  args.memo == null and
+                  args.created_at_time == ?1_000_000 and
+                  args.amount == 100;
+                return #Ok(1);
+              } else if (i == 2) {
+                areSecondCallArgsCorrect := 
+                  args.to.owner == customer2 and Option.isNull(args.to.subaccount) and
+                  args.fee == ?20 and
+                  args.spender_subaccount == null and
+                  args.from.owner == customer1 and Option.isNull(args.from.subaccount) and
+                  args.memo == null and
+                  args.created_at_time == ?2_000_000 and
+                  args.amount == 200;
+                return #Err(#InsufficientAllowance({ allowance = 100 }))
+              };
+              #Ok(0);
             };
           };
 
-          var i = 0;
-          func transferFunction(icrc2Actor: ICRC2Interface.ICRC2Actor, args: ICRC2Interface.TransferFromArgs) : async* { #Ok : Nat; #Err : ICRC2Interface.TransferFromError } {
-            // each time this is called, increments i
-            i += 1;
-            if (i == 1) {
-              areFirstCallArgsCorrect := 
-                args.to.owner == customer1 and Option.isNull(args.to.subaccount) and
-                args.fee == ?10 and
-                args.spender_subaccount == null and
-                args.from.owner == customer2 and Option.isNull(args.from.subaccount) and
-                args.memo == null and
-                args.created_at_time == ?1_000_000 and
-                args.amount == 100;
-              return #Ok(1);
-            } else if (i == 2) {
-              areSecondCallArgsCorrect := 
-                args.to.owner == customer2 and Option.isNull(args.to.subaccount) and
-                args.fee == ?20 and
-                args.spender_subaccount == null and
-                args.from.owner == customer1 and Option.isNull(args.from.subaccount) and
-                args.memo == null and
-                args.created_at_time == ?2_000_000 and
-                args.amount == 200;
-              return #Err(#InsufficientAllowance({ allowance = 100 }))
-            };
-            #Ok(0);
-          };
-
-          let transfers = await* WrappedIcrc2Actor.wrapped_icrc2_transfer_from_batch(
+          let transfers = await* ICRCCall.wrapped_icrc2_transfer_from_batch(
             icrc2Actor,
             2,
             [
@@ -374,7 +360,7 @@ await* s.run([
                 amount = 200;
               }
             ],
-            transferFunction
+            //transferFunction
           );
 
           if (transfers != [#Ok(1), #Err(#InsufficientAllowance({ allowance = 100 }))]) {

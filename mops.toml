@@ -1,6 +1,6 @@
 [package]
 name = "icrc2-batch"
-version = "1.0.0"
+version = "1.0.1"
 description = "Batch functionality for ICRC-2 enabled token ledgers"
 repository = "https://github.com/MemeFighterCo/icrc2-batch"
 keywords = [ "ICRC", "ICRC-2", "transaction", "token", "ledger" ]

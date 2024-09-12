@@ -1,6 +1,6 @@
 import ICRC2Actor "ICRC2Actor";
 import ICRC2Interface "ICRC2Interface";
-import WrappedIcrc2Actor "../internal/WrappedICRC2Actor";
+import ICRCCall "../internal/ICRCCall";
 
 module {
 	/// Class capable of batching ICRC2 transactions to ICRC2 actor canisters
@@ -8,17 +8,17 @@ module {
 
 	/// Get the allowance for a spender on an account
 	public func icrc2_allowance(icrc2Actor: ICRC2Interface.ICRC2Actor, args: ICRC2Interface.AllowanceArgs) : async* ICRC2Interface.Allowance {
-		return await* WrappedIcrc2Actor.icrc2_allowance(icrc2Actor, args);
+		return await* ICRCCall.icrc2_allowance(icrc2Actor, args);
 	};
 
 	/// Approve a spender to spend a certain amount on behalf of the owner
 	public func icrc2_approve(icrc2Actor: ICRC2Interface.ICRC2Actor, args: ICRC2Interface.ApproveArgs) : async* { #Ok : Nat; #Err : ICRC2Interface.ApproveError } {
-		return await* WrappedIcrc2Actor.icrc2_approve(icrc2Actor, args);
+		return await* ICRCCall.icrc2_approve(icrc2Actor, args);
 	};
 
 	/// Transfer an approved amount from one account to another
 	public func icrc2_transfer_from(icrc2Actor: ICRC2Interface.ICRC2Actor, args: ICRC2Interface.TransferFromArgs) : async* { #Ok : Nat; #Err : ICRC2Interface.TransferFromError } {
-		return await* WrappedIcrc2Actor.icrc2_transfer_from(icrc2Actor, args);
+		return await* ICRCCall.icrc2_transfer_from(icrc2Actor, args);
 	};
 
 	/// Batch get allowances provided a list of allowance arguments
@@ -28,11 +28,10 @@ module {
 		batchSize: Nat,
 		allowances: [ICRC2Interface.AllowanceArgs]
 	) : async* [ICRC2Interface.Allowance] {
-		return await* WrappedIcrc2Actor.wrapped_icrc2_allowance_batch(
+		return await* ICRCCall.wrapped_icrc2_allowance_batch(
 			icrc2Actor,
 			batchSize,
 			allowances,
-			WrappedIcrc2Actor.icrc2_allowance
 		);
 	};
 
@@ -43,11 +42,10 @@ module {
 		batchSize: Nat,
 		approvals: [ICRC2Interface.ApproveArgs]
 	) : async* [{ #Ok : Nat; #Err : ICRC2Interface.ApproveError }] {
-		return await* WrappedIcrc2Actor.wrapped_icrc2_approve_batch(
+		return await* ICRCCall.wrapped_icrc2_approve_batch(
 			icrc2Actor,
 			batchSize,
 			approvals,
-			WrappedIcrc2Actor.icrc2_approve
 		);
 	};
 
@@ -58,11 +56,10 @@ module {
 		batchSize: Nat,
 		transfers: [ICRC2Interface.TransferFromArgs]
 	) : async* [{ #Ok : Nat; #Err : ICRC2Interface.TransferFromError }] {
-		return await* WrappedIcrc2Actor.wrapped_icrc2_transfer_from_batch(
+		return await* ICRCCall.wrapped_icrc2_transfer_from_batch(
 			icrc2Actor,
 			batchSize,
 			transfers,
-			WrappedIcrc2Actor.icrc2_transfer_from
 		);
 	};
 };
